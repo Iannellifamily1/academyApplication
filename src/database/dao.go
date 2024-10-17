@@ -194,7 +194,7 @@ func (dao *DAOImpl) CheckIfStaffRoleAlreadyExists(staffID int, roleID int) (bool
 }
 
 func (dao *DAOImpl) AssignRoleToStaff(staffID int, roleID int) (models.StaffWithRoles, error) {
-	queryInsert := `INSERT INTO public."StaffWithRoles" ("staffID", "roleID") VALUES ($1, $2)`
+	queryInsert := `INSERT INTO public."StaffWithRoles" ("staff_id", "role_id") VALUES ($1, $2)`
 	_, err := dao.Db.Exec(queryInsert, staffID, roleID)
 	if err != nil {
 		return models.StaffWithRoles{}, err
@@ -204,7 +204,7 @@ func (dao *DAOImpl) AssignRoleToStaff(staffID int, roleID int) (models.StaffWith
 		SELECT s."ID", s."Email", r."ID", r."Name"
 		FROM public."Staff" s
 		JOIN public."StaffWithRoles" swr ON swr."staffID" = s."ID"
-		JOIN public."Role" r ON swr."roleID" = r."ID"
+		JOIN public."Role" r ON swr."role_id" = r."ID"
 		WHERE swr."staffID" = $1`
 
 	rows, err := dao.Db.Query(querySelect, staffID)
@@ -234,8 +234,8 @@ func (dao *DAOImpl) GetRolesByStaff(staffID int) ([]models.Role, error) {
 	query := `
 	SELECT r."ID", r."Name"
 	FROM public."Staff" s
-	JOIN public."StaffWithRoles" swr ON swr."staffID" = s."ID"
-	JOIN public."Role" r ON swr."roleID" = r."ID"
+	JOIN public."StaffWithRoles" swr ON swr."staff_id" = s."ID"
+	JOIN public."Role" r ON swr."role_id" = r."ID"
 	WHERE s."ID" = $1`
 
 	rows, err := dao.Db.Query(query, staffID)
