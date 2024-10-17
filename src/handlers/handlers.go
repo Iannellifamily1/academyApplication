@@ -155,6 +155,24 @@ func (h *Handler) GetStaffByIDHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(staff)
 }
 
+func (h *Handler) GetRolesByStaffHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	staffID, err := strconv.Atoi(vars["staffID"])
+	if err != nil {
+		http.Error(w, "Invalid staff ID", http.StatusBadRequest)
+		return
+	}
+
+	roles, err := h.Dao.GetRolesByStaff(staffID)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to get roles: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(roles)
+}
+
 func (h *Handler) UpdateStaffHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	staffID, err := strconv.Atoi(vars["staffID"])

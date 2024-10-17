@@ -31,6 +31,7 @@ func main() {
 	router.HandleFunc("/staff/{staffID}", middlewares.IsAdminOrSelf(daoImpl, h.GetStaffByIDHandler)).Methods("GET")
 	router.HandleFunc("/staff/{staffID}", h.DeleteStaffHandler).Methods("DELETE")
 	router.HandleFunc("/staff/{staffID}", h.UpdateStaffHandler).Methods("UPDATE")
+	router.HandleFunc("staff/{staffID}/roles", h.GetRolesByStaffHandler).Methods("GET")
 	router.HandleFunc("/role", middlewares.IsAdmin(h.NewRoleHandler)).Methods("POST")
 	router.HandleFunc("/role", middlewares.IsAdmin(h.GetAllRolesHandler)).Methods("GET")
 	router.HandleFunc("/role/{roleID}", middlewares.IsAdmin(h.DeleteRoleHandler)).Methods("DELETE")

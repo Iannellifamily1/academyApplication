@@ -17,6 +17,7 @@ type DAO interface {
 	UpdateRole(role models.Role) (models.Role, error)
 	GetRole(roleID int) (models.Role, error)
 	GetAllRoles() ([]models.Role, error)
+	GetRolesByStaff(staffID int) ([]models.Role, error)
 	CheckIfRoleAlreadyExists(role models.Role) (bool, error)
 	CheckIfStaffAlreadyExists(staff models.Staff) (bool, error)
 	AssignRoleToStaff(staffId int, roleId int) (models.StaffWithRoles, error)
@@ -227,6 +228,37 @@ func (dao *DAOImpl) AssignRoleToStaff(staffID int, roleID int) (models.StaffWith
 	}
 
 	return staffWithRoles, nil
+}
+
+func (dao *DAOImpl) GetRolesByStaff(staffID int) ([]models.Role, error) {
+	query := `
+	SELECT r."ID", r."Name"
+	FROM public."Staff" s
+	JOIN public."StaffWithRoles" swr ON swr."staffID" = s."ID"
+	JOIN public."Role" r ON swr."roleID" = r."ID"
+	WHERE s."ID" = $1`
+
+	rows, err := dao.Db.Query(query, staffID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var roles []models.Role
+
+	for rows.Next() {
+		var role models.Role
+		if err := rows.Scan(&role.ID, &role.Name); err != nil {
+			return nil, err
+		}
+		roles = append(roles, role)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return roles, nil
 }
 
 func (dao *DAOImpl) GetStaffWithRolesByID(staffID int) (models.StaffWithRoles, error) {
