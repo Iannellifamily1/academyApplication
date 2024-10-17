@@ -27,7 +27,7 @@ func main() {
 	//endpoint to handle login
 	router.HandleFunc("/login", h.LoginHandler).Methods("POST")
 	router.HandleFunc("/register", h.RegisterHandler).Methods("POST")
-	router.HandleFunc("/staff", middlewares.Is(h.GetStaffHandler)).Methods("GET")
+	router.HandleFunc("/staff", middlewares.IsAdmin(h.GetStaffHandler)).Methods("GET")
 	router.HandleFunc("/staff/{staffID}", middlewares.IsAdminOrSelf(daoImpl, h.GetStaffByIDHandler)).Methods("GET")
 	router.HandleFunc("/staff/{staffID}", h.DeleteStaffHandler).Methods("DELETE")
 	router.HandleFunc("/staff/{staffID}", h.UpdateStaffHandler).Methods("UPDATE")
