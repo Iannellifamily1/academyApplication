@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16
+    user: ${DB_USER}
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_EXT_PORT}:${DB_INT_PORT}"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./src/database/init.sql/:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    image: pierpaoloiannelli/academyapplication:latest
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_INT_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db-data:
