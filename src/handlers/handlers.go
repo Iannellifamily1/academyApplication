@@ -301,7 +301,7 @@ func (h *Handler) DeleteRoleHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent) // 204 No Content
 }
 
-func (h *Handler) NewStaffWithRolesHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) AddRolesToStaffHandler(w http.ResponseWriter, r *http.Request) {
 
 	var staffWithRoles models.StaffWithRoles
 	err := json.NewDecoder(r.Body).Decode(&staffWithRoles)

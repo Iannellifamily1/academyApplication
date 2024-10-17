@@ -32,13 +32,11 @@ func main() {
 	router.HandleFunc("/staff/{staffID}", h.DeleteStaffHandler).Methods("DELETE")
 	router.HandleFunc("/staff/{staffID}", h.UpdateStaffHandler).Methods("UPDATE")
 	router.HandleFunc("/staff/{staffID}/roles", h.GetRolesByStaffHandler).Methods("GET")
-	router.HandleFunc("/staff/{staffID}/roles/{roleID}", h.NewStaffWithRolesHandler).Methods("POST")
 	router.HandleFunc("/role", middlewares.IsAdmin(h.NewRoleHandler)).Methods("POST")
 	router.HandleFunc("/role", middlewares.IsAdmin(h.GetAllRolesHandler)).Methods("GET")
 	router.HandleFunc("/role/{roleID}", middlewares.IsAdmin(h.DeleteRoleHandler)).Methods("DELETE")
 	router.HandleFunc("/role/{roleID}", middlewares.IsAdmin(h.UpdateRoleHandler)).Methods("UPDATE")
-
-	router.HandleFunc("/staffWithRoles", h.NewStaffWithRolesHandler).Methods("POST")
+	router.HandleFunc("/staffWithRoles", middlewares.IsAdmin(h.AddRolesToStaffHandler)).Methods("POST")
 
 	//endpoint for concurrency task
 	router.HandleFunc("/wordfrequency", handlers.WordFrequencyHandler).Methods("POST")

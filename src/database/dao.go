@@ -184,7 +184,7 @@ func (dao *DAOImpl) CheckIfRoleAlreadyExists(role models.Role) (bool, error) {
 
 // staffrole section
 func (dao *DAOImpl) CheckIfStaffRoleAlreadyExists(staffID int, roleID int) (bool, error) {
-	query := `SELECT EXISTS (SELECT 1 FROM public."StaffWithRoles" WHERE "staffID" = $1 AND "roleID" = $2)`
+	query := `SELECT EXISTS (SELECT 1 FROM public."StaffWithRoles" WHERE "staff_id" = $1 AND "role_id" = $2)`
 	var exists bool
 	err := dao.Db.QueryRow(query, staffID, roleID).Scan(&exists)
 	if err != nil {
@@ -203,9 +203,9 @@ func (dao *DAOImpl) AssignRoleToStaff(staffID int, roleID int) (models.StaffWith
 	querySelect := `
 		SELECT s."ID", s."Email", r."ID", r."Name"
 		FROM public."Staff" s
-		JOIN public."StaffWithRoles" swr ON swr."staffID" = s."ID"
+		JOIN public."StaffWithRoles" swr ON swr."staff_id" = s."ID"
 		JOIN public."Role" r ON swr."role_id" = r."ID"
-		WHERE swr."staffID" = $1`
+		WHERE swr."staff_id" = $1`
 
 	rows, err := dao.Db.Query(querySelect, staffID)
 	if err != nil {
