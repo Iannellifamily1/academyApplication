@@ -50,24 +50,45 @@ func (h *Handler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Creazione del token e altre operazioni
-	// al posto di admin devo prendere il nome del ruolo associato a quell'utente.Inserire la query per fare ciò
-	tokenString, err := security.CreateToken(staff.Email, staffFromDB.ID, "User")
+	// We should decide which role retrieve. For now I retrieve the first of all ones,if exist
+	roleFromDB, err := h.Dao.GetRolesByStaff(staffFromDB.ID)
 	if err != nil {
-		http.Error(w, "Error creating token", http.StatusInternalServerError)
-		return
-	}
+		if err != sql.ErrNoRows {
+			http.Error(w, "Failed to retrieve role", http.StatusInternalServerError)
+			return
+		}
+		tokenString, err := security.CreateToken(staff.Email, staffFromDB.ID, "")
+		if err != nil {
+			http.Error(w, "Error creating token", http.StatusInternalServerError)
+			return
+		}
+		response := models.StaffResponse{
+			ID:    staffFromDB.ID,
+			Email: staff.Email,
+			Type:  "", // type that needs to be retrieved from DB
+			Token: tokenString,
+		}
 
-	response := models.StaffResponse{
-		ID:    staffFromDB.ID,
-		Email: staff.Email,
-		Type:  "User", // type that needs to be retrieved from DB
-		Token: tokenString,
-	}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(response)
+	} else {
+		tokenString, err := security.CreateToken(staff.Email, staffFromDB.ID, roleFromDB[0].Name)
+		if err != nil {
+			http.Error(w, "Error creating token", http.StatusInternalServerError)
+			return
+		}
+		response := models.StaffResponse{
+			ID:    staffFromDB.ID,
+			Email: staff.Email,
+			Type:  roleFromDB[0].Name, // type that needs to be retrieved from DB
+			Token: tokenString,
+		}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(response)
+	}
 }
 
 func (h *Handler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
